@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Kanak Fashions - Traditional & Modern Fashion Store</title>
+  <title>Kanak Fashion - Traditional & Modern Fashion Store</title>
   <style>
     :root {
       /* Dark theme (default) */
@@ -351,16 +351,45 @@
       color: var(--text-muted);
       line-height: 1.6;
     }
-    
+
+    /* Product Images Grid */
+    .product-images {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      margin-bottom: 1.5rem;
+    }
+
+    .product-img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 8px;
+      transition: all 0.3s ease;
+      border: 2px solid var(--border-color);
+      cursor: pointer;
+    }
+
+    .product-img:hover {
+      transform: scale(1.08);
+      border-color: var(--text-primary);
+      box-shadow: 0 5px 15px var(--shadow-color);
+    }
+
+    /* Fallback for missing images */
     .product-icon {
       font-size: 3rem;
       margin-bottom: 1.5rem;
-      display: block;
+      display: none;
       transition: transform 0.3s ease;
     }
 
-    .product:hover .product-icon {
-      transform: scale(1.1);
+    .show-icon .product-icon {
+      display: block;
+    }
+
+    .show-icon .product-images {
+      display: none;
     }
     
     /* Reviews Section */
@@ -782,30 +811,69 @@
   <section class="products animate-on-scroll" id="products">
     <h2>Our Products</h2>
     <div class="grid">
+      <!-- Handloom Items -->
       <div class="product">
+        <div class="product-images">
+          <img src="images/handloom/handloom1.jpg" alt="Handloom Bedsheet" class="product-img" onerror="handleImageError(this.parentElement.parentElement)">
+          <img src="images/handloom/handloom2.jpg" alt="Traditional Dohad" class="product-img" onerror="this.style.display='none'">
+          <img src="images/handloom/handloom3.jpg" alt="Handwoven Fabric" class="product-img" onerror="this.style.display='none'">
+          <img src="images/handloom/handloom4.jpg" alt="Traditional Textile" class="product-img" onerror="this.style.display='none'">
+        </div>
         <span class="product-icon">🧵</span>
         <h3>Handloom Items</h3>
-        <p>Premium handcrafted traditional items made with authentic techniques passed down through generations.</p>
+        <p>Premium handcrafted bedsheets, dohads and traditional items made with authentic techniques passed down through generations.</p>
       </div>
+
+      <!-- Kurtis & Western Wear -->
       <div class="product">
+        <div class="product-images">
+          <img src="images/kurtis/kurti1.jpg" alt="Traditional Kurti" class="product-img" onerror="handleImageError(this.parentElement.parentElement)">
+          <img src="images/kurtis/kurti2.jpg" alt="Designer Kurti" class="product-img" onerror="this.style.display='none'">
+          <img src="images/kurtis/western1.jpg" alt="Western Top" class="product-img" onerror="this.style.display='none'">
+          <img src="images/kurtis/western2.jpg" alt="Western Dress" class="product-img" onerror="this.style.display='none'">
+        </div>
         <span class="product-icon">👗</span>
         <h3>Kurtis & Western Wear</h3>
         <p>Trendy fashion for all occasions, from traditional kurtis to modern western wear that fits every style.</p>
       </div>
+
+      <!-- Household Items -->
       <div class="product">
+        <div class="product-images">
+          <img src="images/household/home1.jpg" alt="Home Decor Item" class="product-img" onerror="handleImageError(this.parentElement.parentElement)">
+          <img src="images/household/home2.jpg" alt="Kitchen Essential" class="product-img" onerror="this.style.display='none'">
+          <img src="images/household/home3.jpg" alt="Living Room Accessory" class="product-img" onerror="this.style.display='none'">
+          <img src="images/household/home4.jpg" alt="Home Essential" class="product-img" onerror="this.style.display='none'">
+        </div>
         <span class="product-icon">🏠</span>
         <h3>Household Items</h3>
         <p>Beautiful and useful home essentials that add charm and functionality to your living space.</p>
       </div>
+
+      <!-- Gift Articles -->
       <div class="product">
+        <div class="product-images">
+          <img src="images/gifts/gift1.jpg" alt="Gift Item 1" class="product-img" onerror="handleImageError(this.parentElement.parentElement)">
+          <img src="images/gifts/gift2.jpg" alt="Gift Item 2" class="product-img" onerror="this.style.display='none'">
+          <img src="images/gifts/gift3.jpg" alt="Gift Item 3" class="product-img" onerror="this.style.display='none'">
+          <img src="images/gifts/gift4.jpg" alt="Gift Item 4" class="product-img" onerror="this.style.display='none'">
+        </div>
         <span class="product-icon">🎁</span>
         <h3>Gift Articles</h3>
         <p>Perfect gifts for your loved ones, carefully curated to bring joy and elegance to special moments.</p>
       </div>
+
+      <!-- Purses & Bags -->
       <div class="product">
-        <span class="product-icon">👙</span>
-        <h3>Lingerie</h3>
-        <p>Comfortable & stylish lingerie designed for confidence and comfort in premium fabrics.</p>
+        <div class="product-images">
+          <img src="images/bags/bag1.jpg" alt="Designer Bag" class="product-img" onerror="handleImageError(this.parentElement.parentElement)">
+          <img src="images/bags/bag2.jpg" alt="Fashion Handbag" class="product-img" onerror="this.style.display='none'">
+          <img src="images/bags/purse1.jpg" alt="Stylish Purse" class="product-img" onerror="this.style.display='none'">
+          <img src="images/bags/purse2.jpg" alt="Elegant Purse" class="product-img" onerror="this.style.display='none'">
+        </div>
+        <span class="product-icon">👜</span>
+        <h3>Purses & Bags</h3>
+        <p>Stylish purses and bags for every occasion, from traditional to modern designs that complement your style.</p>
       </div>
     </div>
   </section>
@@ -857,7 +925,7 @@
   <section class="about animate-on-scroll" id="about">
     <h2>Who We Are</h2>
     <p>
-      At <b>Kanak Fashion</b>, we blend tradition with modern style to bring you premium handloom items, trendy kurtis, western wear, stylish lingerie, elegant gift articles, and charming household essentials — all at prices that stay affordable. Our mission is simple: to make every woman feel confident, stylish, and satisfied.
+      At <b>Kanak Fashion</b>, we blend tradition with modern style to bring you premium handloom items, trendy kurtis, western wear, stylish purses & bags, elegant gift articles, and charming household essentials — all at prices that stay affordable. Our mission is simple: to make every woman feel confident, stylish, and satisfied.
     </p>
   </section>
 
@@ -916,6 +984,11 @@
   <button class="scroll-top" onclick="scrollToTop()">↑</button>
 
   <script>
+    // Image error handling function
+    function handleImageError(productElement) {
+      productElement.classList.add('show-icon');
+    }
+
     // Theme Toggle Functionality
     function toggleTheme() {
       const body = document.body;
