@@ -1084,13 +1084,19 @@
       submitBtn.textContent = 'Sending...';
       submitBtn.disabled = true;
       
-      // Prepare template parameters (matching your EmailJS template exactly)
+      // Prepare template parameters - try different parameter names
       const templateParams = {
-        name: name,
-        email: email,
+        from_name: name,
+        from_email: email,
         message: message,
-        title: 'Kanak Fashion Website Contact'
+        to_name: 'Kanak Fashion',
+        reply_to: email
       };
+      
+      // Debug: Log the parameters being sent
+      console.log('Sending email with parameters:', templateParams);
+      console.log('Service ID: service_fashion');
+      console.log('Template ID: template_toyacrp');
       
       // Send email using your EmailJS service and template
       emailjs.send('service_fashion', 'template_toyacrp', templateParams)
@@ -1113,19 +1119,30 @@
           
         }, function(error) {
           console.log('FAILED...', error);
+          console.log('Error details:', JSON.stringify(error));
+          
+          // More detailed error handling
+          let errorMessage = 'Sorry, there was an error sending your message.';
+          if (error.status === 422) {
+            errorMessage = 'Template parameter mismatch. Please check your EmailJS template.';
+          } else if (error.status === 400) {
+            errorMessage = 'Bad request. Please check your EmailJS configuration.';
+          } else if (error.status === 403) {
+            errorMessage = 'Access denied. Please check your EmailJS public key.';
+          }
           
           // Error feedback
           submitBtn.textContent = 'Failed to Send. Try Again';
           submitBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
           
-          // Show error notification
-          showNotification('Sorry, there was an error sending your message. Please try again.', 'error');
+          // Show error notification with more details
+          showNotification(errorMessage + ' Please try again or contact us directly.', 'error');
           
           setTimeout(() => {
             submitBtn.textContent = 'Send Message';
             submitBtn.disabled = false;
             submitBtn.style.background = '';
-          }, 3000);
+          }, 5000); // Longer timeout for error state
         });
     }
 
