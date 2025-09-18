@@ -4,13 +4,10 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Kanak Fashion - Traditional & Modern Fashion Store</title>
-
-  <!-- Favicon -->
-  <link rel="apple-touch-icon" sizes="180x180" href="/images/favicon/apple-touch-icon.png">
-  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon/favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon/favicon-16x16.png">
-  <link rel="icon" href="/images/favicon/favicon.ico">
-  <link rel="manifest" href="/images/favicon/site.webmanifest">
+  
+  <!-- EmailJS SDK -->
+  <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@4/dist/email.min.js"></script>
+  
   <style>
     :root {
       /* Dark theme (default) */
@@ -571,6 +568,11 @@
     .submit-btn:active {
       transform: translateY(0);
     }
+
+    .submit-btn:disabled {
+      cursor: not-allowed;
+      opacity: 0.7;
+    }
     
     /* Contact Info */
     .contact-info-card {
@@ -687,6 +689,36 @@
     }
     
     .animate-right.animated {
+      opacity: 1;
+      transform: translateX(0);
+    }
+
+    /* Notification Styles */
+    .notification {
+      position: fixed;
+      top: 100px;
+      right: 20px;
+      padding: 15px 20px;
+      border-radius: 10px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+      z-index: 10000;
+      font-size: 14px;
+      max-width: 300px;
+      opacity: 0;
+      transform: translateX(100%);
+      transition: all 0.3s ease;
+      color: white;
+    }
+
+    .notification.success {
+      background: #28a745;
+    }
+
+    .notification.error {
+      background: #dc3545;
+    }
+
+    .notification.show {
       opacity: 1;
       transform: translateX(0);
     }
@@ -991,6 +1023,11 @@
   <button class="scroll-top" onclick="scrollToTop()">↑</button>
 
   <script>
+    // Initialize EmailJS with your public key
+    (function(){
+      emailjs.init('OWLaVgqDb4JsEMwKB'); // Your EmailJS public key
+    })();
+
     // Image error handling function
     function handleImageError(productElement) {
       productElement.classList.add('show-icon');
@@ -1005,7 +1042,6 @@
       const newTheme = currentTheme === 'light' ? 'dark' : 'light';
       
       body.setAttribute('data-theme', newTheme);
-      localStorage.setItem('theme', newTheme);
       
       // Update toggle button
       if (newTheme === 'light') {
@@ -1025,22 +1061,16 @@
 
     // Load saved theme
     function loadTheme() {
-      const savedTheme = localStorage.getItem('theme') || 'dark';
       const themeIcon = document.getElementById('themeIcon');
       const themeText = document.getElementById('themeText');
       
-      document.body.setAttribute('data-theme', savedTheme);
-      
-      if (savedTheme === 'light') {
-        themeIcon.textContent = '☀️';
-        themeText.textContent = 'Light';
-      } else {
-        themeIcon.textContent = '🌙';
-        themeText.textContent = 'Dark';
-      }
+      // Default to dark theme
+      document.body.setAttribute('data-theme', 'dark');
+      themeIcon.textContent = '🌙';
+      themeText.textContent = 'Dark';
     }
 
-    // Contact Form Submission
+    // Contact Form Submission with EmailJS
     function sendEmail(event) {
       event.preventDefault();
       
@@ -1054,37 +1084,73 @@
       submitBtn.textContent = 'Sending...';
       submitBtn.disabled = true;
       
-      // Create email content
-      const subject = `New Contact Form Submission from ${name}`;
-      const body = `
-Name: ${name}
-Email: ${email}
+      // Prepare template parameters (matching your EmailJS template exactly)
+      const templateParams = {
+        name: name,
+        email: email,
+        message: message,
+        title: 'Kanak Fashion Website Contact'
+      };
+      
+      // Send email using your EmailJS service and template
+      emailjs.send('service_fashion', 'template_toyacrp', templateParams)
+        .then(function(response) {
+          console.log('SUCCESS!', response.status, response.text);
+          
+          // Success feedback
+          form.reset();
+          submitBtn.textContent = 'Message Sent Successfully! ✓';
+          submitBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+          
+          // Show success notification
+          showNotification('Thank you! Your message has been sent successfully.', 'success');
+          
+          setTimeout(() => {
+            submitBtn.textContent = 'Send Message';
+            submitBtn.disabled = false;
+            submitBtn.style.background = '';
+          }, 3000);
+          
+        }, function(error) {
+          console.log('FAILED...', error);
+          
+          // Error feedback
+          submitBtn.textContent = 'Failed to Send. Try Again';
+          submitBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+          
+          // Show error notification
+          showNotification('Sorry, there was an error sending your message. Please try again.', 'error');
+          
+          setTimeout(() => {
+            submitBtn.textContent = 'Send Message';
+            submitBtn.disabled = false;
+            submitBtn.style.background = '';
+          }, 3000);
+        });
+    }
 
-Message:
-${message}
-
----
-Sent from Kanak Fashion Website Contact Form
-      `.trim();
+    // Notification function
+    function showNotification(message, type) {
+      // Create notification element
+      const notification = document.createElement('div');
+      notification.className = `notification ${type}`;
+      notification.textContent = message;
       
-      // Create mailto link
-      const mailtoLink = `mailto:agrawalmohak09dec@gmail.com?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      // Add to page
+      document.body.appendChild(notification);
       
-      // Open email client
-      window.location.href = mailtoLink;
-      
-      // Reset form after a short delay
+      // Show notification
       setTimeout(() => {
-        form.reset();
-        submitBtn.textContent = 'Message Sent! ✓';
-        submitBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-        
+        notification.classList.add('show');
+      }, 100);
+      
+      // Hide notification after 5 seconds
+      setTimeout(() => {
+        notification.classList.remove('show');
         setTimeout(() => {
-          submitBtn.textContent = 'Send Message';
-          submitBtn.disabled = false;
-          submitBtn.style.background = '';
-        }, 3000);
-      }, 1000);
+          document.body.removeChild(notification);
+        }, 300);
+      }, 5000);
     }
 
     // Mobile navigation toggle
