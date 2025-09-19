@@ -1193,14 +1193,13 @@
       emailjs.init('OWLaVgqDb4JsEMwKB'); // Your EmailJS public key
     })();
 
-    // Chatbot functionality
-    const chatbox = document.getElementById("chatbox");
-    const messages = document.getElementById("chatbox-messages");
+    // Chatbot functionality - Global variables
+    let chatbox, messages, currentMenu = "main";
 
-    // Chatbot flow
-    const flow = {
+    // Chatbot flow data
+    const chatbotFlow = {
       main: {
-        text: "Hi 👋 How can I help you today? Please choose a topic:",
+        text: "Hi! How can I help you today? Please choose a topic:",
         options: ["About Kanak Fashion", "Products", "Shipping", "Policies", "Contact Us"]
       },
       "About Kanak Fashion": {
@@ -1216,7 +1215,7 @@
         options: ["Do you sell kids' clothing?", "Do you have a catalog?", "Do you offer gift items?", "⬅ Go Back"],
         answers: {
           "Do you sell kids' clothing?": "Not yet. Right now, we're all about women's fashion, but maybe in the future!",
-          "Do you have a catalog?": "Yes, you can check our latest styles in the Gallery section of the website.",
+          "Do you have a catalog?": "Yes, you can check our latest styles in the Products section of the website.",
           "Do you offer gift items?": "Yes, along with clothing, we also have gift articles and home décor items."
         }
       },
@@ -1247,57 +1246,102 @@
       }
     };
 
-    let currentMenu = "main";
+    // Initialize chatbot elements
+    function initializeChatbot() {
+      chatbox = document.getElementById("chatbox");
+      messages = document.getElementById("chatbox-messages");
+      
+      if (!chatbox || !messages) {
+        console.error('Chatbot elements not found');
+        return;
+      }
+      
+      console.log('Chatbot initialized successfully');
+    }
 
-    // Toggle chatbot
+    // Toggle chatbot visibility
     function toggleChat() {
-      chatbox.style.display = chatbox.style.display === "flex" ? "none" : "flex";
-      if (chatbox.style.display === "flex") {
-        loadMenu("main");
+      if (!chatbox) {
+        initializeChatbot();
+      }
+      
+      const isVisible = chatbox.style.display === "flex";
+      chatbox.style.display = isVisible ? "none" : "flex";
+      
+      if (!isVisible) {
+        loadChatMenu("main");
       }
     }
 
-    // Load menu
-    function loadMenu(menu) {
+    // Load a specific menu in chat
+    function loadChatMenu(menu) {
+      if (!messages || !chatbotFlow[menu]) {
+        console.error('Invalid menu or messages element not found:', menu);
+        return;
+      }
+      
       messages.innerHTML = "";
       currentMenu = menu;
-      addMessage(flow[menu].text, "bot");
-      flow[menu].options.forEach(option => {
-        addOption(option);
-      });
+      
+      // Add bot message
+      addChatMessage(chatbotFlow[menu].text, "bot");
+      
+      // Add options
+      setTimeout(() => {
+        chatbotFlow[menu].options.forEach(option => {
+          addChatOption(option);
+        });
+      }, 500);
     }
 
-    // Add message
-    function addMessage(text, sender) {
+    // Add a message to chat
+    function addChatMessage(text, sender) {
+      if (!messages) return;
+      
       const msg = document.createElement("div");
       msg.classList.add("message", sender);
-      msg.innerText = text;
+      msg.textContent = text;
       messages.appendChild(msg);
       messages.scrollTop = messages.scrollHeight;
     }
 
-    // Add option
-    function addOption(text) {
+    // Add an option button to chat
+    function addChatOption(text) {
+      if (!messages) return;
+      
       const opt = document.createElement("div");
       opt.classList.add("option");
-      opt.innerText = text;
-      opt.onclick = () => handleOption(text);
+      opt.textContent = text;
+      opt.addEventListener('click', () => handleChatOption(text));
       messages.appendChild(opt);
+      messages.scrollTop = messages.scrollHeight;
     }
 
     // Handle option click
-    function handleOption(option) {
-      addMessage(option, "user");
+    function handleChatOption(option) {
+      // Add user message
+      addChatMessage(option, "user");
 
+      // Handle back button
       if (option === "⬅ Go Back") {
-        loadMenu("main");
+        setTimeout(() => loadChatMenu("main"), 800);
         return;
       }
 
-      if (flow[currentMenu].answers && flow[currentMenu].answers[option]) {
-        addMessage(flow[currentMenu].answers[option], "bot");
-      } else if (flow[option]) {
-        loadMenu(option);
+      // Check for direct answers
+      if (chatbotFlow[currentMenu].answers && chatbotFlow[currentMenu].answers[option]) {
+        setTimeout(() => {
+          addChatMessage(chatbotFlow[currentMenu].answers[option], "bot");
+          
+          // Add back option after answer
+          setTimeout(() => {
+            addChatOption("⬅ Go Back");
+          }, 1000);
+        }, 800);
+      } 
+      // Check for submenu
+      else if (chatbotFlow[option]) {
+        setTimeout(() => loadChatMenu(option), 800);
       }
     }
 
@@ -1497,16 +1541,19 @@
       const navMenu = document.getElementById('navMenu');
       const navToggle = document.querySelector('.nav-toggle');
       const chatbotButton = document.querySelector('.chatbot-button');
-      const chatbox = document.getElementById('chatbox');
+      const chatboxElement = document.getElementById('chatbox');
       
       // Close nav menu
       if (!navMenu.contains(event.target) && !navToggle.contains(event.target)) {
         navMenu.classList.remove('active');
       }
 
-      // Close chatbot if clicking outside
-      if (!chatbox.contains(event.target) && !chatbotButton.contains(event.target)) {
-        chatbox.style.display = 'none';
+      // Close chatbot if clicking outside (but not on chatbot button)
+      if (chatboxElement && 
+          !chatboxElement.contains(event.target) && 
+          !chatbotButton.contains(event.target) && 
+          chatboxElement.style.display === 'flex') {
+        chatboxElement.style.display = 'none';
       }
     });
 
