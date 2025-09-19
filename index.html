@@ -87,6 +87,144 @@
       transition: transform 0.3s ease;
     }
 
+    /* Chatbot Styles */
+    .chatbot-button {
+      position: fixed;
+      bottom: 90px;
+      right: 20px;
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      color: var(--bg-primary);
+      border: none;
+      border-radius: 50%;
+      width: 60px;
+      height: 60px;
+      cursor: pointer;
+      font-size: 24px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 4px 15px var(--shadow-color);
+      z-index: 1000;
+      transition: all 0.3s ease;
+    }
+
+    .chatbot-button:hover {
+      transform: translateY(-3px) scale(1.05);
+      box-shadow: 0 6px 20px var(--shadow-color);
+    }
+
+    .chatbox {
+      position: fixed;
+      bottom: 160px;
+      right: 20px;
+      width: 340px;
+      max-height: 450px;
+      background: var(--bg-secondary);
+      border: 2px solid var(--border-color);
+      border-radius: 15px;
+      display: none;
+      flex-direction: column;
+      box-shadow: 0 8px 25px var(--shadow-color);
+      z-index: 999;
+      backdrop-filter: blur(10px);
+    }
+
+    .chatbox-header {
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      color: var(--bg-primary);
+      padding: 15px;
+      border-radius: 13px 13px 0 0;
+      font-size: 16px;
+      font-weight: bold;
+      text-align: center;
+      position: relative;
+    }
+
+    .chatbox-close {
+      position: absolute;
+      right: 15px;
+      top: 50%;
+      transform: translateY(-50%);
+      background: none;
+      border: none;
+      color: var(--bg-primary);
+      font-size: 18px;
+      cursor: pointer;
+      opacity: 0.8;
+      transition: opacity 0.2s;
+    }
+
+    .chatbox-close:hover {
+      opacity: 1;
+    }
+
+    .chatbox-messages {
+      flex: 1;
+      padding: 15px;
+      overflow-y: auto;
+      font-size: 14px;
+      max-height: 350px;
+      background: var(--bg-primary);
+    }
+
+    .chatbox-footer {
+      padding: 12px;
+      text-align: center;
+      border-top: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+      border-radius: 0 0 13px 13px;
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .message {
+      margin: 8px 0;
+      padding: 10px 12px;
+      border-radius: 12px;
+      max-width: 85%;
+      line-height: 1.4;
+      animation: slideIn 0.3s ease;
+    }
+
+    @keyframes slideIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .bot {
+      background: var(--card-bg);
+      border: 1px solid var(--border-color);
+      color: var(--text-muted);
+      align-self: flex-start;
+    }
+
+    .user {
+      background: linear-gradient(135deg, var(--text-primary), var(--text-secondary));
+      color: var(--bg-primary);
+      align-self: flex-end;
+      margin-left: auto;
+    }
+
+    .option {
+      background: var(--hover-bg);
+      border: 1px solid var(--border-color);
+      margin: 4px 0;
+      padding: 10px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 13px;
+      transition: all 0.3s ease;
+      color: var(--text-primary);
+      text-align: center;
+    }
+
+    .option:hover {
+      background: var(--text-primary);
+      color: var(--bg-primary);
+      transform: translateY(-1px);
+      box-shadow: 0 2px 8px var(--shadow-color);
+    }
+
     /* Simple, clean animations */
     @keyframes fadeInUp {
       from {
@@ -795,6 +933,21 @@
         padding: 6px 12px;
         font-size: 0.8rem;
       }
+
+      /* Mobile chatbot adjustments */
+      .chatbox {
+        width: calc(100vw - 40px);
+        right: 20px;
+        left: 20px;
+      }
+
+      .chatbot-button {
+        bottom: 20px;
+      }
+
+      .scroll-top {
+        bottom: 90px;
+      }
     }
   </style>
 </head>
@@ -1014,6 +1167,18 @@
     </div>
   </section>
 
+  <!-- Chatbot -->
+  <button class="chatbot-button" onclick="toggleChat()">💬</button>
+  
+  <div class="chatbox" id="chatbox">
+    <div class="chatbox-header">
+      Kanak Fashion Assistant
+      <button class="chatbox-close" onclick="toggleChat()">✕</button>
+    </div>
+    <div class="chatbox-messages" id="chatbox-messages"></div>
+    <div class="chatbox-footer">Friendly support 😊</div>
+  </div>
+
   <!-- Footer -->
   <footer class="animate-on-scroll">
     <p>© 2025 Kanak Fashion. All Rights Reserved. | Crafted with ❤️ by Mohak</p>
@@ -1027,6 +1192,114 @@
     (function(){
       emailjs.init('OWLaVgqDb4JsEMwKB'); // Your EmailJS public key
     })();
+
+    // Chatbot functionality
+    const chatbox = document.getElementById("chatbox");
+    const messages = document.getElementById("chatbox-messages");
+
+    // Chatbot flow
+    const flow = {
+      main: {
+        text: "Hi 👋 How can I help you today? Please choose a topic:",
+        options: ["About Kanak Fashion", "Products", "Shipping", "Policies", "Contact Us"]
+      },
+      "About Kanak Fashion": {
+        text: "Here's what you can know about us:",
+        options: ["What is Kanak Fashion?", "Why choose Kanak Fashion?", "⬅ Go Back"],
+        answers: {
+          "What is Kanak Fashion?": "Kanak Fashion is our little world of women's fashion, based in Khamgaon. We bring together traditional charm and modern style — from kurtis to western wear, handbags, gifts, and more.",
+          "Why choose Kanak Fashion?": "Because we love fashion as much as you do! Our aim is to give you beautiful designs with good quality at prices that make you smile."
+        }
+      },
+      "Products": {
+        text: "Here are some product-related questions:",
+        options: ["Do you sell kids' clothing?", "Do you have a catalog?", "Do you offer gift items?", "⬅ Go Back"],
+        answers: {
+          "Do you sell kids' clothing?": "Not yet. Right now, we're all about women's fashion, but maybe in the future!",
+          "Do you have a catalog?": "Yes, you can check our latest styles in the Gallery section of the website.",
+          "Do you offer gift items?": "Yes, along with clothing, we also have gift articles and home décor items."
+        }
+      },
+      "Shipping": {
+        text: "Here's what you should know about shipping:",
+        options: ["Do you ship internationally?", "What are the shipping charges?", "⬅ Go Back"],
+        answers: {
+          "Do you ship internationally?": "At the moment, we only deliver within India. We'll let you know if that changes in the future.",
+          "What are the shipping charges?": "Shipping charges vary depending on your state and city."
+        }
+      },
+      "Policies": {
+        text: "Here are our store policies:",
+        options: ["Do you have a return or exchange policy?", "Do you run discounts or offers?", "⬅ Go Back"],
+        answers: {
+          "Do you have a return or exchange policy?": "We'd love every customer to be happy! But right now, we don't offer returns or exchanges. Please check carefully before shopping.",
+          "Do you run discounts or offers?": "Yes, sometimes. Special discounts are available in-store — please ask during your visit."
+        }
+      },
+      "Contact Us": {
+        text: "How would you like to connect?",
+        options: ["Where is Kanak Fashion located?", "What are your store timings?", "How can I contact you?", "⬅ Go Back"],
+        answers: {
+          "Where is Kanak Fashion located?": "We're in Khamgaon, Maharashtra. You can find the full address on our Contact page.",
+          "What are your store timings?": "We're open daily from 10:00 AM to 9:00 PM.",
+          "How can I contact you?": "You can Call or WhatsApp us at +91 94231 24083."
+        }
+      }
+    };
+
+    let currentMenu = "main";
+
+    // Toggle chatbot
+    function toggleChat() {
+      chatbox.style.display = chatbox.style.display === "flex" ? "none" : "flex";
+      if (chatbox.style.display === "flex") {
+        loadMenu("main");
+      }
+    }
+
+    // Load menu
+    function loadMenu(menu) {
+      messages.innerHTML = "";
+      currentMenu = menu;
+      addMessage(flow[menu].text, "bot");
+      flow[menu].options.forEach(option => {
+        addOption(option);
+      });
+    }
+
+    // Add message
+    function addMessage(text, sender) {
+      const msg = document.createElement("div");
+      msg.classList.add("message", sender);
+      msg.innerText = text;
+      messages.appendChild(msg);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    // Add option
+    function addOption(text) {
+      const opt = document.createElement("div");
+      opt.classList.add("option");
+      opt.innerText = text;
+      opt.onclick = () => handleOption(text);
+      messages.appendChild(opt);
+    }
+
+    // Handle option click
+    function handleOption(option) {
+      addMessage(option, "user");
+
+      if (option === "⬅ Go Back") {
+        loadMenu("main");
+        return;
+      }
+
+      if (flow[currentMenu].answers && flow[currentMenu].answers[option]) {
+        addMessage(flow[currentMenu].answers[option], "bot");
+      } else if (flow[option]) {
+        loadMenu(option);
+      }
+    }
 
     // Image error handling function
     function handleImageError(productElement) {
@@ -1084,7 +1357,7 @@
       submitBtn.textContent = 'Sending...';
       submitBtn.disabled = true;
       
-      // Prepare template parameters - try different parameter names
+      // Prepare template parameters
       const templateParams = {
         from_name: name,
         from_email: email,
@@ -1092,11 +1365,6 @@
         to_name: 'Kanak Fashion',
         reply_to: email
       };
-      
-      // Debug: Log the parameters being sent
-      console.log('Sending email with parameters:', templateParams);
-      console.log('Service ID: service_fashion');
-      console.log('Template ID: template_toyacrp');
       
       // Send email using your EmailJS service and template
       emailjs.send('service_fashion', 'template_x9upm1r', templateParams)
@@ -1119,49 +1387,34 @@
           
         }, function(error) {
           console.log('FAILED...', error);
-          console.log('Error details:', JSON.stringify(error));
-          
-          // More detailed error handling
-          let errorMessage = 'Sorry, there was an error sending your message.';
-          if (error.status === 422) {
-            errorMessage = 'Template parameter mismatch. Please check your EmailJS template.';
-          } else if (error.status === 400) {
-            errorMessage = 'Bad request. Please check your EmailJS configuration.';
-          } else if (error.status === 403) {
-            errorMessage = 'Access denied. Please check your EmailJS public key.';
-          }
           
           // Error feedback
           submitBtn.textContent = 'Failed to Send. Try Again';
           submitBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
           
-          // Show error notification with more details
-          showNotification(errorMessage + ' Please try again or contact us directly.', 'error');
+          // Show error notification
+          showNotification('Sorry, there was an error sending your message. Please try again or contact us directly.', 'error');
           
           setTimeout(() => {
             submitBtn.textContent = 'Send Message';
             submitBtn.disabled = false;
             submitBtn.style.background = '';
-          }, 5000); // Longer timeout for error state
+          }, 5000);
         });
     }
 
     // Notification function
     function showNotification(message, type) {
-      // Create notification element
       const notification = document.createElement('div');
       notification.className = `notification ${type}`;
       notification.textContent = message;
       
-      // Add to page
       document.body.appendChild(notification);
       
-      // Show notification
       setTimeout(() => {
         notification.classList.add('show');
       }, 100);
       
-      // Hide notification after 5 seconds
       setTimeout(() => {
         notification.classList.remove('show');
         setTimeout(() => {
@@ -1243,9 +1496,17 @@
     document.addEventListener('click', function(event) {
       const navMenu = document.getElementById('navMenu');
       const navToggle = document.querySelector('.nav-toggle');
+      const chatbotButton = document.querySelector('.chatbot-button');
+      const chatbox = document.getElementById('chatbox');
       
+      // Close nav menu
       if (!navMenu.contains(event.target) && !navToggle.contains(event.target)) {
         navMenu.classList.remove('active');
+      }
+
+      // Close chatbot if clicking outside
+      if (!chatbox.contains(event.target) && !chatbotButton.contains(event.target)) {
+        chatbox.style.display = 'none';
       }
     });
 
